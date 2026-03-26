@@ -1,0 +1,7 @@
+CXX = g++
+CXXFLAGS = -std=gnu++20 -O2 -Wall -Wextra -Wshadow -Wconversion \
+           -Wfloat-equal -Wduplicated-cond -Wlogical-op \
+           -Wnull-dereference -Wformat=2 -pipe
+
+%: %.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@

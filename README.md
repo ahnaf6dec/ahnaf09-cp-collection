@@ -1,4 +1,2 @@
-# learn-tricks
-Learn CP tricks
-----
-Recursion intro : https://ahnaf6dec.github.io/learn-tricks/recursion/html/intro.html
+# My Competitive Programming Collection
+I will gather all resources soon with great implementation.

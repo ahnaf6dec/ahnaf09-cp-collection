@@ -1,0 +1,9 @@
+g++ -std=gnu++20 -DOFFLINE -O2 -Wall -Wextra file.cpp -o file.out
+
+**for read input from files
+
+./file.out < in_file_name.txt
+
+
+
+
