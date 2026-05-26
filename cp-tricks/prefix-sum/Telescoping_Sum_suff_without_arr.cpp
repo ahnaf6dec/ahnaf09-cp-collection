@@ -1,4 +1,5 @@
 /*
+Main implementation : https://codeforces.com/contest/1709/submission/376106518
 =========================================================
             Prefix + Telescoping Sum Trick
 =========================================================
