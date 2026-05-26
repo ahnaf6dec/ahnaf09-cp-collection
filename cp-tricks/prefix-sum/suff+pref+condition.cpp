@@ -87,9 +87,9 @@ int main() {
         cin >> l >> r;
 
         if (l < r) {
-            cout << pref[r] - pref[l] << '\n';
+            cout << pref[r] - pref[l] << endl;
         } else {
-            cout << a[l] - a[r] + pref[l] - pref[r] << '\n';
+           cout << suff[l] - suff[r] << endl;
         }
     }
 
