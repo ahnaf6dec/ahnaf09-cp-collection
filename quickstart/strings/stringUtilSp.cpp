@@ -377,4 +377,21 @@ pair<char, int> minFreq(const string& s) {
     return {r, m};
 }
 
+// Both longest and shortest subsequence
+auto findSub(string_view s) {
+    if (s.empty()) return pair<string, string>{"", ""};
+    int n = s.length(), i = n, j = n;
+    vector dp(n + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= n; ++i)
+        for (int j = 1; j <= n; ++j)
+            dp[i][j] = (s[i-1] == s[j-1] && i != j) ? dp[i-1][j-1] + 1 : max(dp[i-1][j], dp[i][j-1]);
+    string l; l.reserve(dp[n][n]);
+    while (i > 0 && j > 0) {
+        if (dp[i][j] == dp[i-1][j-1] + 1 && s[i-1] == s[j-1] && i != j) { l += s[i-1]; --i; --j; }
+        else if (dp[i][j] == dp[i-1][j]) --i; else --j;
+    }
+    reverse(l.begin(), l.end());
+    return pair{l, string(1, s[0])};
+}
+
 }  // namespace StrUtil
