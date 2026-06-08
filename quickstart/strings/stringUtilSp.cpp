@@ -362,4 +362,19 @@ inline bool endsWith(const string &s, const string &p) {
   return s.size() >= p.size() && equal(p.rbegin(), p.rend(), s.rbegin());
 }
 
+
+// Max Freq
+pair<char, int> maxFreq(const string& s) {
+    int f[256] = {}, m = 0; char r = 0;
+    for (unsigned char c : s) if (++f[c] > m) m = f[r = c];
+    return {r, m};
+}
+// Min Feq
+pair<char, int> minFreq(const string& s) {
+    int f[256] = {}, m = 1e9; char r = 0;
+    for (unsigned char c : s) f[c]++;
+    for (unsigned char c : s) if (f[c] < m) m = f[r = c];
+    return {r, m};
+}
+
 }  // namespace StrUtil
