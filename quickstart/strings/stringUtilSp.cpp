@@ -393,5 +393,6 @@ auto findSub(string_view s) {
     reverse(l.begin(), l.end());
     return pair{l, string(1, s[0])};
 }
-
+ // auto [longest, shortest] = findSub("aabebcdd");
+    // cout << "Longest: " << longest << "\nShortest: " << shortest << "\n";
 }  // namespace StrUtil
