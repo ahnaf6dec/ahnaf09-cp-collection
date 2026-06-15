@@ -1,218 +1,183 @@
+#pragma once
 #include <bits/stdc++.h>
 using namespace std;
 
-/*
-====================================================
- CF FREQUENCY ARRAY & HASHING TEMPLATE
- Author: Ahnaf
- Usage: Competitive Programming (Codeforces)
-====================================================
-*/
+namespace HashUtil {
 
-// -------- FAST IO --------
-#define fastio ios::sync_with_stdio(false); cin.tie(NULL)
-
-// -------- TYPE ALIASES --------
+// -------- CONFIGURATION & MACROS --------
+#define sz(x) ((int)(x).size())
 using ll = long long;
-using pii = pair<int,int>;
-using pll = pair<ll,ll>;
 
-// -------- CONSTANTS --------
-const int INF = 1e9;
-const ll LINF = 1e18;
-const int MAXA = 1e5 + 5;   // adjust according to constraints
+const int MAXA = 1e5 + 5;  // Adjust according to data range constraints
+int freq_arr[MAXA];
 
-// freq array
-int freq[MAXA];
+// -----------------------------------------------------------------------------
+// 1. CORE STRUCTURES & CUSTOM ANTI-HACK HASHING
+// -----------------------------------------------------------------------------
 
-void use_frequency_array(vector<int>& a) {
-    // reset only required range if possible
-    memset(freq, 0, sizeof(freq));
+/* * Custom splitmix64 hash function to prevent O(N^2) malicious hash collisions
+ * on Codeforces unordered maps/sets.
+ */
+struct custom_hash {
+  static uint64_t splitmix64(uint64_t x) {
+    x += 0x9e3779b97f4a7c15;
+    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+    x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+    return x ^ (x >> 31);
+  }
+  size_t operator()(uint64_t x) const {
+    static const uint64_t FIXED_RANDOM =
+        chrono::steady_clock::now().time_since_epoch().count();
+    return splitmix64(x + FIXED_RANDOM);
+  }
+};
 
-    for(int x : a) freq[x]++;
+// Safe anti-hack replacements for unordered standard library containers
+template <typename K, typename V>
+using safe_map = unordered_map<K, V, custom_hash>;
 
-    // example usage
-    for(int i = 0; i < MAXA; i++) {
-        if(freq[i] > 0) {
-            // i occurs freq[i] times
-        }
+template <typename T>
+using safe_set = unordered_set<T, custom_hash>;
+
+// -----------------------------------------------------------------------------
+// 2. FREQUENCY COLLECTORS
+// -----------------------------------------------------------------------------
+
+/* Use Case: High-speed frequency count when values fit comfortably within MAXA.
+ */
+void use_frequency_array(const vector<int>& a) {
+  // Zero out only the necessary range if maximum values are known for optimal
+  // speed
+  memset(freq_arr, 0, sizeof(freq_arr));
+  for (int x : a) {
+    if (x >= 0 && x < MAXA) freq_arr[x]++;
+  }
+}
+
+/* Use Case: Gathering frequencies of arbitrary integers without collision
+ * exploits. */
+safe_map<int, int> get_freq_map(const vector<int>& a) {
+  safe_map<int, int> mp;
+  mp.reserve(a.size() * 2);
+  mp.max_load_factor(0.25);
+  for (int x : a) mp[x]++;
+  return mp;
+}
+
+/* Use Case: Standardizing frequencies of lowercase alphabetical characters. */
+vector<int> char_frequency(const string& s) {
+  vector<int> cnt(26, 0);
+  for (char c : s) cnt[c - 'a']++;
+  return cnt;
+}
+
+// -----------------------------------------------------------------------------
+// 3. COMMON COMPETITIVE CHECKING PATTERNS
+// -----------------------------------------------------------------------------
+
+/* Use Case: Confirming if an entire array collection contains distinct values.
+ */
+bool all_unique(const vector<int>& a) {
+  safe_set<int> st;
+  for (int x : a) {
+    if (st.count(x)) return false;
+    st.insert(x);
+  }
+  return true;
+}
+
+/* Use Case: Finding the dominant value/mode inside a sequence. */
+int max_frequency_element(const vector<int>& a) {
+  safe_map<int, int> mp;
+  int mx = 0, val = -1;
+  for (int x : a) {
+    if (++mp[x] > mx) {
+      mx = mp[x];
+      val = x;
     }
+  }
+  return val;
 }
 
-// unordered map -> O(n^2)
-void use_unordered_map(vector<int>& a) {
-    unordered_map<int,int> mp;
-    mp.reserve(a.size() * 2);
-    mp.max_load_factor(0.25);
-
-    for(int x : a) mp[x]++;
-
-    for(auto &it : mp) {
-        int key = it.first;
-        int cnt = it.second;
-    }
-}
-
-// ====================================================
-// ORDERED MAP (WHEN SORTING / BOUNDS NEEDED)
-// ====================================================
-
-void use_ordered_map(vector<int>& a) {
-    map<int,int> mp;
-
-    for(int x : a) mp[x]++;
-
-    // keys are sorted
-    for(auto &it : mp) {
-        int key = it.first;
-        int cnt = it.second;
-    }
-
-    // lower_bound / upper_bound supported
-    auto it = mp.lower_bound(5);
-}
-
-// ====================================================
-// CHARACTER FREQUENCY
-// ====================================================
-
-void char_frequency(const string& s) {
-    int cnt[26] = {0};
-    for(char c : s) cnt[c - 'a']++;
-}
-
-// ====================================================
-// 5️⃣ COMMON CF PATTERNS
-// ====================================================
-
-// Check if all elements are unique
-bool all_unique(vector<int>& a) {
-    unordered_set<int> st;
-    for(int x : a) {
-        if(st.count(x)) return false;
-        st.insert(x);
-    }
-    return true;
-}
-
-// Find element with max frequency
-int max_frequency_element(vector<int>& a) {
-    unordered_map<int,int> mp;
-    int mx = 0, val = -1;
-    for(int x : a) {
-        if(++mp[x] > mx) {
-            mx = mp[x];
-            val = x;
-        }
-    }
-    return val;
-}
-
-// ====================================================
-// ADVANCED & VERY COMMON CF HASHING UTILITIES
-// ====================================================
-
-// Count pairs (i < j) such that a[i] == a[j]
-ll count_equal_pairs(const vector<int>& a) {
-    unordered_map<int,ll> mp;
-    ll ans = 0;
-    for(int x : a) {
-        ans += mp[x];
-        mp[x]++;
-    }
-    return ans;
-}
-
-// Check if any element appears at least k times
+/* Use Case: Quick screening for target occurrence limits. */
 bool appears_at_least_k(const vector<int>& a, int k) {
-    unordered_map<int,int> mp;
-    for(int x : a) {
-        if(++mp[x] >= k) return true;
-    }
-    return false;
+  safe_map<int, int> mp;
+  for (int x : a) {
+    if (++mp[x] >= k) return true;
+  }
+  return false;
 }
 
-// Get frequency map from array
-unordered_map<int,int> get_freq_map(const vector<int>& a) {
-    unordered_map<int,int> mp;
-    for(int x : a) mp[x]++;
-    return mp;
+// -----------------------------------------------------------------------------
+// 4. ADVANCED HASHING UTILITIES
+// -----------------------------------------------------------------------------
+
+/* Use Case: Counting pairs (i < j) such that a[i] == a[j]. */
+ll count_equal_pairs(const vector<int>& a) {
+  safe_map<int, ll> mp;
+  ll ans = 0;
+  for (int x : a) {
+    ans += mp[x];
+    mp[x]++;
+  }
+  return ans;
 }
 
-// Coordinate Compression (VERY IMPORTANT)
+/* Use Case: Mapping large value ranges down to [0, N-1] indices (Coordinate
+ * Compression). */
 vector<int> compress(vector<int> a) {
-    vector<int> b = a;
-    sort(b.begin(), b.end());
-    b.erase(unique(b.begin(), b.end()), b.end());
-    for(int &x : a) {
-        x = lower_bound(b.begin(), b.end(), x) - b.begin();
-    }
-    return a;
+  vector<int> b = a;
+  sort(b.begin(), b.end());
+  b.erase(unique(b.begin(), b.end()), b.end());
+  for (int& x : a) {
+    x = lower_bound(b.begin(), b.end(), x) - b.begin();
+  }
+  return a;
 }
 
-// Check if two arrays are anagrams (same frequency)
-bool same_frequency(vector<int>& a, vector<int>& b) {
-    if(a.size() != b.size()) return false;
-    unordered_map<int,int> mp;
-    for(int x : a) mp[x]++;
-    for(int x : b) {
-        if(--mp[x] < 0) return false;
-    }
-    return true;
+/* Use Case: Verification if two data sequences represent structural
+ * permutations (Anagrams). */
+bool same_frequency(const vector<int>& a, const vector<int>& b) {
+  if (a.size() != b.size()) return false;
+  safe_map<int, int> mp = get_freq_map(a);
+  for (int x : b) {
+    if (--mp[x] < 0) return false;
+  }
+  return true;
 }
 
-// ====================================================
-// PREFIX HASHING / SUBARRAY TECHNIQUES
-// ====================================================
+// -----------------------------------------------------------------------------
+// 5. PREFIX SUBARRAY AGGREGATIONS
+// -----------------------------------------------------------------------------
 
-// Count subarrays with sum = k
+/* Use Case: Counting the total number of continuous segments that sum to K. */
 ll subarray_sum_k(const vector<int>& a, int k) {
-    unordered_map<ll,ll> mp;
-    mp[0] = 1;
-    ll sum = 0, ans = 0;
-    for(int x : a) {
-        sum += x;
-        ans += mp[sum - k];
-        mp[sum]++;
-    }
-    return ans;
+  safe_map<ll, ll> mp;
+  mp[0] = 1;
+  ll sum = 0, ans = 0;
+  for (int x : a) {
+    sum += x;
+    if (mp.count(sum - k)) ans += mp[sum - k];
+    mp[sum]++;
+  }
+  return ans;
 }
 
-// Longest subarray with sum = k
+/* Use Case: Finding the longest span of a continuous segment matching sum
+ * target K. */
 int longest_subarray_sum_k(const vector<int>& a, int k) {
-    unordered_map<ll,int> first;
-    ll sum = 0;
-    int ans = 0;
-    for(int i = 0; i < (int)a.size(); i++) {
-        sum += a[i];
-        if(sum == k) ans = i + 1;
-        if(!first.count(sum)) first[sum] = i;
-        if(first.count(sum - k))
-            ans = max(ans, i - first[sum - k]);
+  safe_map<ll, int> first;
+  ll sum = 0;
+  int ans = 0;
+  for (int i = 0; i < sz(a); i++) {
+    sum += a[i];
+    if (sum == k) ans = i + 1;
+    if (!first.count(sum)) first[sum] = i;
+    if (first.count(sum - k)) {
+      ans = max(ans, i - first[sum - k]);
     }
-    return ans;
+  }
+  return ans;
 }
 
-void solve() {
-    int n;
-    cin >> n;
-    vector<int> a(n);
-    for(int i = 0; i < n; i++) cin >> a[i];
-
-    // Choose ONE based on constraints
-    // use_frequency_array(a);
-    // use_unordered_map(a);
-    // use_ordered_map(a);
-}
-
-int main() {
-    fastio;
-
-    int T = 1;
-    cin >> T;
-    while(T--) {
-        solve();
-    }
-    return 0;
-}
-
+}  // namespace HashUtil

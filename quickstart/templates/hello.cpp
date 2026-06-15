@@ -21,7 +21,7 @@ signed main(){
   freopen("in.txt","r",stdin);
 #endif
 
-  // Write code hre
+  // Write code here
 
   return 0;
 }

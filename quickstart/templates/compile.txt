@@ -1,9 +1,61 @@
-g++ -std=gnu++20 -DOFFLINE -O2 -Wall -Wextra sol.cpp -o sol.out && ./sol.out
+================================================================================
+          COMPETITIVE PROGRAMMING TERMINAL REFERENCE FOR LINUX
+================================================================================
 
-**for read input from files
+1. COMPLETE COMPILATION COMMAND
+--------------------------------------------------------------------------------
+Use this unified command to compile your file with optimal performance, hidden 
+bug warnings, and the local OFFLINE debugging flag active:
 
-./file.out < in_file_name.txt
+g++ -std=gnu++20 -O2 -Wall -Wextra -Wshadow -Wconversion -DOFFLINE sol.cpp -o sol.out
+g++ -std=gnu++20 -O2 -DOFFLINE sol.cpp -o sol.out
+## Compile + run
+g++ -std=gnu++20 -O2 -Wall -Wextra -Wshadow -Wconversion -DOFFLINE sol.cpp -o sol.out && ./sol.out
+
+FLAG BREAKDOWN:
+  -std=gnu++20      : Uses GNU C++20 extensions (needed for __int128, etc.).
+  -O2               : Enables level 2 speed optimizations used by judges.
+  -Wall -Wextra     : Catches basic bugs (uninitialized values, wrong signs).
+  -Wshadow          : Warns you if a local variable hides a global variable.
+  -Wconversion      : Flags risky implicit casts (e.g., long long down to int).
+  -DOFFLINE         : Activates your #ifdef OFFLINE blocks and multi-variable dbg().
 
 
+2. EXECUTION AND STREAM REDIRECTION
+--------------------------------------------------------------------------------
+Pass input dynamically via streams without hardcoding filenames in your code.
+
+Run with Input File:
+  ./sol.out < in.txt
+
+Run with Input and Export Output to File:
+  ./sol.out < in.txt > out.txt
+
+One-Liner (Compile and run immediately if compilation succeeds):
+  g++ -std=gnu++20 -O2 -Wall -Wextra -DOFFLINE sol.cpp -o sol.out && ./sol.out < in.txt
 
 
+3. RUNTIME DEBUGGING AND SANITIZERS
+--------------------------------------------------------------------------------
+If your code throws a Segmentation Fault or Undefined Behavior locally, 
+re-compile with these hardware sanitizers to pinpoint the exact crash line:
+
+g++ -std=gnu++20 -g -fsanitize=address,undefined sol.cpp -o sol.out && ./sol.out < in.txt
+
+* Note: Sanitizers consume significant memory and execution time. Do not use 
+  them when testing or profiling strict time complexities.
+
+
+4. EXECUTION TIMING AND OUTPUT VALIDATION
+--------------------------------------------------------------------------------
+Measure Exact Execution Speed (isolated from compile time):
+  time ./sol.out < in.txt
+
+Automated Output Verification (Diff Checking):
+Compare your output file against a generated brute-force/correct file (ans.txt).
+The '-w' flag ignores trailing spaces and empty line mismatches:
+
+  diff -w out.txt ans.txt
+
+* If this command prints nothing to the terminal, your outputs match perfectly.
+================================================================================
