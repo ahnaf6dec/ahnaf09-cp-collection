@@ -1,4 +1,3 @@
-// /Users/ahnaf/Desktop/cp-codes
 /*
   In the name of Allah..
       _       _                     __   ___
