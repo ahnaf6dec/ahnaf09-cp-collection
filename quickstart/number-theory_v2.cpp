@@ -533,8 +533,50 @@ Mat mat_pow(Mat A, ll e, ll m = MOD) {
 /* Use Case: Division adjustments avoiding dangerous float conversion errors. */
 ll ceil_div(ll a, ll b) { return (a + b - 1) / b; }
 ll floor_div(ll a, ll b) { return a / b; }
-bool is_power_of_two(ll n) { return n > 0 && (n & (n - 1)) == 0; }
+// ---------------------------------------
+/* FLOOR: ⌊a/b⌋
+   use: math formulas, negatives safe, number theory */
+ll fl(ll a, ll b) {
+  ll q = a / b, r = a % b;
+  if (r && ((r > 0) != (b > 0))) --q;
+  return q;
+}
 
+/* CEIL: ⌈a/b⌉
+   use: minimum needed, groups, days, operations */
+ll cl(ll a, ll b) {
+  ll q = a / b, r = a % b;
+  if (r && ((r > 0) == (b > 0))) ++q;
+  return q;
+}
+
+/* ROUND: nearest integer
+   use: only when statement says "round/nearest" */
+ll rd(ll a, ll b) {
+  if ((a ^ b) >= 0) return (a + b / 2) / b;
+  return (a - b / 2) / b;
+}
+
+bool is_power_of_two(ll n) { return n > 0 && (n & (n - 1)) == 0; }
+// n << k = n * 2^k
+// n >> k = n / 2^k
+// (a ^ b) == 0 [a value not eql to b value]
+// (a ^ b) != 0 [a value not eql to b value]
+// (n & 1) [n is odd]
+// !(n & 1) [n is even]
+// a > 0 -> a is positive 
+// a < 0 -> a is negative
+// a == 0 -> a is 0
+
+// divisible by 2  → last digit even
+// divisible by 3  → sum of digits divisible by 3
+// divisible by 4  → last 2 digits divisible by 4
+// divisible by 5  → last digit 0 or 5
+// divisible by 6  → divisible by 2 and 3
+// divisible by 8  → last 3 digits divisible by 8
+// divisible by 9  → sum of digits divisible by 9
+// divisible by 10 → last digit 0
+ 
 /* Use Case: Pure integer calculations avoiding precision issues with long
  * doubles. */
 ll isqrt(ll n) {
